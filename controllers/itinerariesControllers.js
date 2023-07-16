@@ -94,65 +94,49 @@ const itinerariesControllers = {
         error: error
     })
     }, //agregar un itinerario a la vez (funciona)
-    addMultiplesItineraries: async (req, res) => { 
-    let itineraries = [];
-    error = [];
-
-    try{
-        for (let Itinerary of req.body.data) {
-            let verifyItineraries = await Itinerary.find({titleActivity: {$regex: Itinerary.titleActivity, $options: 'i'}})
-            if (verifyItineraries.length==0){
-                let dataItineraries = 
-                {
-                    collaborator: Itinerary.collaborator,
-                    profileImage: Itinerary.profileImage,
-                    imageItineraryA: Itinerary.imageItineraryA,
-                    imageItineraryB: Itinerary.imageItineraryB,
-                    imageItineraryC: Itinerary.imageItineraryC,
-                    titleActivity: Itinerary.titleActivity,
-                    description: Itinerary.description,
-                    price: Itinerary.price,
-                    time: Itinerary.time,
-                    hashtag: Itinerary.hashtag,
-                    idCity: Itinerary.idCity,
-                    likes: Itinerary.likes,
-                    language: Itinerary.language,
-                    years: Itinerary.years
-                }
-                await new Itinerary({
-                    ...dataItineraries
-                }) .save() 
-              itineraries.push(dataItineraries)
-            }
-            else {
-                error.push({
-                    titleActivity: Itinerary.titleActivity,
-                    resul: "the ID already exists in the DB: " + verifyItineraries[0]._id
-                })
-            }
-        }
-    } 
-    catch (err) { error = err }
-        res.json({
-            response: error.length > 0 && itineraries.length === 0 ? "ERROR" : itineraries,
-            success: error.length > 0 ? (itineraries.length > 0 ? "warning" : false) : true,
-            error: error
-        })
-    },
-    removeItinerary: async (req, res) => {
-        let id = req.params.id
-        let itinerary
-        let error = null
-
+    addMultiplesItineraries: async (req, res) => {
+        let error = [];
+        let itineraries = [];
+      
         try {
-            itinerary = await Itinerary.findOneAndDelete({ _id: id })
-        } catch (err) { error = err }
+          for (let itinerary of req.body.data) {
+            let verifyItineraries = await Itinerary.find({ titleActivity: { $regex: itinerary.titleActivity, $options: 'i' } });
+            if (verifyItineraries.length === 0) {
+              let dataItinerary = {
+                collaborator: itinerary.collaborator,
+                profileImage: itinerary.profileImage,
+                imageItineraryA: itinerary.imageItineraryA,
+                imageItineraryB: itinerary.imageItineraryB,
+                imageItineraryC: itinerary.imageItineraryC,
+                titleActivity: itinerary.titleActivity,
+                description: itinerary.description,
+                price: itinerary.price,
+                time: itinerary.time,
+                hashtag: itinerary.hashtag,
+                idCity: itinerary.idCity,
+                likes: itinerary.likes,
+                language: itinerary.language,
+                years: itinerary.years
+              };
+              await new Itinerary(dataItinerary).save();
+              itineraries.push(dataItinerary);
+            } else {
+              error.push({
+                titleActivity: itinerary.titleActivity,
+                result: "The ID already exists in the DB: " + verifyItineraries[0]._id
+              });
+            }
+          }
+        } catch (err) {
+          error = [err];
+        }
+        
         res.json({
-            response: error ? "The ID does not match any object in the database" : itinerary,
-            success: error ? false : true,
-            error: error
-        })
-    }, // elimina un itinerario por vez (funciona)
+          response: error.length > 0 || itineraries.length === 0 ? "ERROR" : itineraries,
+          success: error.length > 0 ? (itineraries.length > 0 ? "warning" : false) : true,
+          error: error
+        });
+      }, // elimina un itinerario por vez (funciona)
     //removeManyItineraries: () => { },
 }
 
