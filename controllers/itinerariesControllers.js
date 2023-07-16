@@ -94,7 +94,51 @@ const itinerariesControllers = {
         error: error
     })
     }, //agregar un itinerario a la vez (funciona)
-    addMultiplesItineraries: () => { },
+    addMultiplesItineraries: async (req, res) => { 
+    let itineraries = [];
+    error = [];
+
+    try{
+        for (let Itinerary of req.body.data) {
+            let verifyItineraries = await Itinerary.find({titleActivity: {$regex: Itinerary.titleActivity, $options: 'i'}})
+            if (verifyItineraries.length==0){
+                let dataItineraries = 
+                {
+                    collaborator: Itinerary.collaborator,
+                    profileImage: Itinerary.profileImage,
+                    imageItineraryA: Itinerary.imageItineraryA,
+                    imageItineraryB: Itinerary.imageItineraryB,
+                    imageItineraryC: Itinerary.imageItineraryC,
+                    titleActivity: Itinerary.titleActivity,
+                    description: Itinerary.description,
+                    price: Itinerary.price,
+                    time: Itinerary.time,
+                    hashtag: Itinerary.hashtag,
+                    idCity: Itinerary.idCity,
+                    likes: Itinerary.likes,
+                    language: Itinerary.language,
+                    years: Itinerary.years
+                }
+                await new Itinerary({
+                    ...dataItineraries
+                }) .save() 
+              itineraries.push(dataItineraries)
+            }
+            else {
+                error.push({
+                    titleActivity: Itinerary.titleActivity,
+                    resul: "the ID already exists in the DB: " + verifyItineraries[0]._id
+                })
+            }
+        }
+    } 
+    catch (err) { error = err }
+        res.json({
+            response: error.length > 0 && itineraries.length === 0 ? "ERROR" : itineraries,
+            success: error.length > 0 ? (itineraries.length > 0 ? "warning" : false) : true,
+            error: error
+        })
+    },
     removeItinerary: async (req, res) => {
         let id = req.params.id
         let itinerary
