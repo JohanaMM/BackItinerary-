@@ -44,7 +44,7 @@ const itinerariesControllers = {
             success: error ? false : true,
             error: error
         })
-    }, //trae un solo itinerario (funciona)
+    }, //trae un solo itinerario (funciona) 
     modifyItinerary: async (req, res) => {
         const id = req.params.id
         const data = req.body.data
