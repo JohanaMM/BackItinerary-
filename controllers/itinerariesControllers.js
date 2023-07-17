@@ -136,8 +136,48 @@ const itinerariesControllers = {
           success: error.length > 0 ? (itineraries.length > 0 ? "warning" : false) : true,
           error: error
         });
-      }, // elimina un itinerario por vez (funciona)
+removeItinerary: async (req, res) => {
+        let id = req.params.id
+        let itinerary
+        let error = null
+
+        try {
+            itinerary = await Itinerary.findOneAndDelete({ _id: id })
+        } catch (err) { error = err }
+        res.json({
+            response: error ? "The ID does not match any object in the database" : itinerary,
+            success: error ? false : true,
+            error: error
+        })
+    }, // elimina un itinerario por vez (funciona)
     //removeManyItineraries: () => { },
+
+    removeManyItinerary: async (req, res) => {
+        const data = req.body.data
+        let itinerariesDelete = []
+        let error = []
+
+        try {
+            let itinerary
+            for (let id of data) {
+                itinerary = await itineraries.findOneAndDelete({ _id: id })
+                if (itinerary) {
+                    itinerariesDelete.push(itinerary)
+                } else {
+                    error.push({
+                        id: id,
+                        error: "the ID you want to delete was not found"
+                    })
+                }
+            }
+        } catch (err) { error = err }
+
+        res.json({
+            response: error.length > 0 && itinerariesDelete.length === 0 ? "ERROR" : itinerariesDelete,
+            success: error.length > 0 ? (itinerariesDelete.length > 0 ? "warning" : false) : true,
+            error: error
+        })
+    }
 }
 
 module.exports = itinerariesControllers
