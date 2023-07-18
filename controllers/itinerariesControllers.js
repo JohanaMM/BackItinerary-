@@ -9,7 +9,7 @@ const itinerariesControllers = {
             itineraries = await Itinerary.find()
         } catch (err) { error = err }
         res.json({
-            response: error ? "ERROR" : {itineraries},
+            response: error ? "ERROR" : { itineraries },
             success: error ? false : true,
             error: error
         })
@@ -62,81 +62,82 @@ const itinerariesControllers = {
         })
     },//modifica un itinerario
     addOneItinerary: async (req, res) => {
-    const {collaborator, profileImage, imageItineraryA, imageItineraryB, imageItineraryC, titleActivity, description, price, time, hashtag, idCity, likes} = req.body.data
-    let itinerary
-    let error = null
+        const { collaborator, profileImage, imageItineraryA, imageItineraryB, imageItineraryC, titleActivity, description, price, time, hashtag, idCity, likes } = req.body.data
+        let itinerary
+        let error = null
 
-    try {
-        let verifyItineraryExist = await Itinerary.find({titleActivity: {$regex: titleActivity, $options: 'i' }})
-        if(verifyItineraryExist.length == 0){
-            itinerary = await new Itinerary({
-            collaborator: collaborator,
-            profileImage: profileImage,
-            imageItineraryA: imageItineraryA,
-            imageItineraryB: imageItineraryB,
-            imageItineraryC: imageItineraryC,
-            titleActivity: titleActivity,
-            description:description,
-            price: price,
-            time: time,
-            hashtag: hashtag,
-            idCity: idCity,
-            likes: likes,
-        }).save()
-        }else{
-            error = "This itinerary already exists in the database " + verifyItineraryExist[0]._id
-        }
+        try {
+            let verifyItineraryExist = await Itinerary.find({ titleActivity: { $regex: titleActivity, $options: 'i' } })
+            if (verifyItineraryExist.length == 0) {
+                itinerary = await new Itinerary({
+                    collaborator: collaborator,
+                    profileImage: profileImage,
+                    imageItineraryA: imageItineraryA,
+                    imageItineraryB: imageItineraryB,
+                    imageItineraryC: imageItineraryC,
+                    titleActivity: titleActivity,
+                    description: description,
+                    price: price,
+                    time: time,
+                    hashtag: hashtag,
+                    idCity: idCity,
+                    likes: likes,
+                }).save()
+            } else {
+                error = "This itinerary already exists in the database " + verifyItineraryExist[0]._id
+            }
 
-    } catch (err) { error = err }
-    res.json({
-        response: error ? "Failed to add object to database" : itinerary,
-        success: error ? false : true,
-        error: error
-    })
+        } catch (err) { error = err }
+        res.json({
+            response: error ? "Failed to add object to database" : itinerary,
+            success: error ? false : true,
+            error: error
+        })
     }, //agregar un itinerario a la vez (funciona)
     addMultiplesItineraries: async (req, res) => {
         let error = [];
         let itineraries = [];
-      
+
         try {
-          for (let itinerary of req.body.data) {
-            let verifyItineraries = await Itinerary.find({ titleActivity: { $regex: itinerary.titleActivity, $options: 'i' } });
-            if (verifyItineraries.length === 0) {
-              let dataItinerary = {
-                collaborator: itinerary.collaborator,
-                profileImage: itinerary.profileImage,
-                imageItineraryA: itinerary.imageItineraryA,
-                imageItineraryB: itinerary.imageItineraryB,
-                imageItineraryC: itinerary.imageItineraryC,
-                titleActivity: itinerary.titleActivity,
-                description: itinerary.description,
-                price: itinerary.price,
-                time: itinerary.time,
-                hashtag: itinerary.hashtag,
-                idCity: itinerary.idCity,
-                likes: itinerary.likes,
-                language: itinerary.language,
-                years: itinerary.years
-              };
-              await new Itinerary(dataItinerary).save();
-              itineraries.push(dataItinerary);
-            } else {
-              error.push({
-                titleActivity: itinerary.titleActivity,
-                result: "The ID already exists in the DB: " + verifyItineraries[0]._id
-              });
+            for (let itinerary of req.body.data) {
+                let verifyItineraries = await Itinerary.find({ titleActivity: { $regex: itinerary.titleActivity, $options: 'i' } });
+                if (verifyItineraries.length === 0) {
+                    let dataItinerary = {
+                        collaborator: itinerary.collaborator,
+                        profileImage: itinerary.profileImage,
+                        imageItineraryA: itinerary.imageItineraryA,
+                        imageItineraryB: itinerary.imageItineraryB,
+                        imageItineraryC: itinerary.imageItineraryC,
+                        titleActivity: itinerary.titleActivity,
+                        description: itinerary.description,
+                        price: itinerary.price,
+                        time: itinerary.time,
+                        hashtag: itinerary.hashtag,
+                        idCity: itinerary.idCity,
+                        likes: itinerary.likes,
+                        language: itinerary.language,
+                        years: itinerary.years
+                    };
+                    await new Itinerary(dataItinerary).save();
+                    itineraries.push(dataItinerary);
+                } else {
+                    error.push({
+                        titleActivity: itinerary.titleActivity,
+                        result: "The ID already exists in the DB: " + verifyItineraries[0]._id
+                    });
+                }
             }
-          }
         } catch (err) {
-          error = [err];
+            error = [err];
         }
-        
+
         res.json({
-          response: error.length > 0 || itineraries.length === 0 ? "ERROR" : itineraries,
-          success: error.length > 0 ? (itineraries.length > 0 ? "warning" : false) : true,
-          error: error
-        });
-removeItinerary: async (req, res) => {
+            response: error.length > 0 || itineraries.length === 0 ? "ERROR" : itineraries,
+            success: error.length > 0 ? (itineraries.length > 0 ? "warning" : false) : true,
+            error: error
+        })
+    },
+    removeItinerary: async (req, res) => {
         let id = req.params.id
         let itinerary
         let error = null
@@ -150,8 +151,6 @@ removeItinerary: async (req, res) => {
             error: error
         })
     }, // elimina un itinerario por vez (funciona)
-    //removeManyItineraries: () => { },
-
     removeManyItinerary: async (req, res) => {
         const data = req.body.data
         let itinerariesDelete = []
